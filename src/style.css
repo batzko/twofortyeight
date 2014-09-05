@@ -1,0 +1,54 @@
+body {
+    font-family: "Arial";
+}
+
+.board {
+    position: absolute;
+    background-color: #ccc;
+    border-radius: 4px;
+    padding:4px;
+}
+
+.cell {
+    color:#666;
+    font-weight: bold;
+    min-width:32px;
+    min-height:32px;
+    line-height:32px;
+    font-size:24px;
+    margin:4px;
+    padding:8px;
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #eee;
+    border-radius: 2px;
+}
+
+.one {
+    font-size:24px;
+}
+
+.two {
+    font-size:22px;
+}
+
+.three {
+    font-size:18px;
+}
+
+.four {
+    font-size: 18px;
+    padding-left:4px;
+    padding-right:4px;
+}
+
+.five {
+    font-size: 16px;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.cell:first-child {
+    clear:both;
+}
