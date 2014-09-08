@@ -25,6 +25,11 @@ body {
     border-radius: 2px;
 }
 
+.zero {
+    color: transparent;
+    background-color: #ddd;
+}
+
 .one {
     font-size:24px;
 }
@@ -52,4 +57,9 @@ body {
 
 .cell:first-child {
     clear:both;
+}
+
+.isNew {
+    background-color: #afa;
+
 }

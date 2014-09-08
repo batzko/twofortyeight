@@ -5,15 +5,15 @@ define(["../lib/angular"], function (ng) {
 		return {
 			restrict: "A",
 			template: "<div class='row' ng-repeat='row in grid'>" +
-				"<div class='cell' ng-class='{two: cell.two, three:cell.three, four:cell.four, five:cell.five}' ng-repeat='cell in row track by $index'>{{cell.value}}</div></div>",
+				"<div class='cell' ng-class='{isNew:cell.isNew, zero: cell.zero, two: cell.two, three:cell.three, four:cell.four, five:cell.five}' ng-repeat='cell in row track by $index'>{{cell.value}}</div></div>",
 			controller: ["$scope", function ($scope) {
 
 				var grid;
 				grid = [
-					[2, 0, 16, 16],
-					[0, 8, 16, 16],
-					[2, 0, 16, 32],
-					[4, 8, 16, 64]
+					[0, 0, 0, 0],
+					[0, 0, 0, 0],
+					[0, 0, 0, 0],
+					[0, 0, 0, 0]
 				];
 
 				/*grid = [
@@ -35,6 +35,7 @@ define(["../lib/angular"], function (ng) {
 					grid.forEach(function (row, i, arr) {
 						row.forEach(function (cell) {
 							var s = Math.ceil(Math.log(cell.value) / Math.log(10));
+							cell.zero = cell.value === 0;
 							cell.two = s === 2;
 							cell.three = s === 3;
 							cell.four = s === 4;
@@ -50,6 +51,7 @@ define(["../lib/angular"], function (ng) {
 					}
 					var rows = grid.length,
 						cols = grid[0].length;
+					var moved = false;
 					var res = [];
 					var cell, next;
 					var tr;
@@ -79,23 +81,30 @@ define(["../lib/angular"], function (ng) {
 								}
 							}
 						}
-						for (tr = 0; tr < rows; tr++) {
-							if (!res[tr]) {
-								res[tr] = [];
-							}
-							if (!res[tr][c]) {
-								res[tr][c] = {value: 0};
-							}
-							res[tr][c].collapsed = false;
-						}
 					}
+
+					fillInEmpty(res, rows, cols);
 
 					if (reverse) {
 						res.reverse();
 					}
-					//fillInEmpty(res);
+
+					if( !isSame(res, grid) ) {
+						randomize(res);
+					}
 					updateCellStates(res);
 					return res;
+				}
+
+				function isSame( a, b ) {
+					for( var i=0, len = a.length;i<len;i++) {
+						for( var j=0, num=a[i].length;j<num;j++) {
+							if ( a[i][j].value !== b[i][j].value) {
+								return false;
+							}
+						}
+					}
+					return true;
 				}
 
 				function horizontal(grid, reverse) {
@@ -132,37 +141,54 @@ define(["../lib/angular"], function (ng) {
 								}
 							}
 						}
-
-						for (tc = 0; tc < cols; tc++) {
-							if (!res[r]) {
-								res[r] = [];
-							}
-							if (!res[r][tc]) {
-								res[r][tc] = {value: 0};
-							}
-							res[r][tc].collapsed = false;
-						}
-
-						if ( reverse ) {
-							res[r].reverse();
-						}
 					});
 
+					fillInEmpty(res, rows, cols);
+					if ( reverse ) {
+						res.forEach( function(row, i, grid) {
+							grid[i].reverse();
+						});
+					}
+
+					if( !isSame(res, grid) ) {
+						randomize(res);
+					}
 
 					updateCellStates(res);
 					return res;
 				}
 
-				function fillInEmpty(grid) {
-					grid.forEach(function (row) {
-						var n = row.length;
-						for (var c = 0; c < n; c++) {
-							if (!row[c]) {
-								row[c] = {value: 0};
-							}
-							row[c].collapsed = false;
+				function fillInEmpty(grid, rows, cols) {
+					for ( var r=0;r<rows;r++) {
+						if ( !grid[r]) {
+							grid[r] = [];
 						}
-					});
+						for(var c=0;c < cols;c++) {
+							if ( !grid[r][c] ) {
+								grid[r][c] = {value:0}
+							}
+
+							grid[r][c].collapsed = false;
+							grid[r][c].isNew = false;
+						}
+					}
+				}
+
+				function randomize(grid) {
+					var empty = [],
+						rows = grid.length,
+						cols = grid[0].length;
+					for ( var r=0;r<rows;r++) {
+						for(var c=0;c < cols;c++) {
+							if ( grid[r][c].value === 0) {
+								empty.push(r+";"+c);
+							}
+						}
+					}
+					var cell = empty[Math.min(empty.length-1, Math.round( Math.random()*empty.length ))];
+					cell = cell.split(";");
+					grid[cell[0]][cell[1]].value = 2;
+					grid[cell[0]][cell[1]].isNew = true;
 				}
 
 				function up() {
@@ -197,6 +223,10 @@ define(["../lib/angular"], function (ng) {
 							break;
 					}
 				};
+
+				fillInEmpty(grid, 4, 4);
+				randomize(grid);
+				randomize(grid);
 
 				updateCellStates( grid );
 
